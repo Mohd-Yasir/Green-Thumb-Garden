@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Green Thumb Gardens</title>
+    <style>
+        body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #2dd4bf, #8b5cf6);
+    color: #1f2937;
+}
+
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.grid {
+    display: flex;
+    justify-content: center;
+}
+
+.card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+.btn {
+    background: #2dd4bf;
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.result-card {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #e7f9f4;
+    border: 1px solid #2dd4bf;
+    border-radius: 0.5rem;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🌱 The Green Thumb Gardens</h1>
+            <p>Machine Learning powered crop suggestions based on your field conditions</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Enter Field Details</h2>
+                </div>
+                <div class="card-content">
+                    <form id="cropForm">
+                        <div class="form-group">
+                            <label for="nitrogen">Nitrogen</label>
+                            <input type="number" id="nitrogen" name="nitrogen" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phosphorus">Phosphorus</label>
+                            <input type="number" id="phosphorus" name="phosphorus" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="potassium">Potassium</label>
+                            <input type="number" id="potassium" name="potassium" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="temperature">Temperature</label>
+                            <input type="number" id="temperature" name="temperature" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="humidity">Humidity</label>
+                            <input type="number" id="humidity" name="humidity" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ph">pH</label>
+                            <input type="number" id="ph" name="ph" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rainfall">Rainfall</label>
+                            <input type="number" id="rainfall" name="rainfall" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn">Predict Crop</button>
+                    </form>
+                    <div id="result" class="result-card"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("cropForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "Predicting...";
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    resultDiv.innerHTML = `<p><strong>Recommended Crop:</strong> ${result.crop}</p>`;
+                    resultDiv.classList.add("visible");
+                } else {
+                    const error = await response.json();
+                    resultDiv.innerHTML = `<p>Error: ${error.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Error: Unable to reach server.</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
